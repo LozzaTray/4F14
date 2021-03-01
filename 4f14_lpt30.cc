@@ -116,6 +116,8 @@ public:
         unique_lock<mutex> current_lock = current->lock();
         unique_lock<mutex> next_lock = next->lock();
 
+        //lock(head_lock, current_lock, next_lock);
+
         current->set_next(next);
         if (next != NULL)
             next->set_prev(current);
@@ -131,6 +133,12 @@ public:
         // assume that node is in the list
         LinkNode *prev = node->get_prev();
         LinkNode *next = node->get_next();
+
+        unique_lock<mutex> prev_lock = prev->lock();
+        unique_lock<mutex> current_lock = node->lock();
+        unique_lock<mutex> next_lock = next->lock();
+
+        //lock(prev_lock, current_lock, next_lock);
 
         prev->set_next(next);
         next->set_prev(prev);
@@ -217,5 +225,5 @@ int main()
     thread delete_thread(period_delete);
 
     print_thread.join();
-    delete_thread.join();
+    delete_thread.detach();
 }

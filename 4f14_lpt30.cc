@@ -1,5 +1,6 @@
 #include <iostream>
 #include <thread>
+#include <chrono>
 using namespace std;
 
 int random_integer(int lower_cutoff, int upper_cutoff);
@@ -47,15 +48,26 @@ class LinkedList
 {
 private:
     LinkNode *head;
+    LinkNode *tail;
     int length;
 
 public:
     LinkedList()
     {
         length = 0;
-        head = new LinkNode("");
+        head = new LinkNode("HEAD");
+        tail = new LinkNode("TAIL");
+        
         head->set_prev(NULL);
-        head->set_next(NULL);
+        head->set_next(tail);
+
+        tail->set_prev(head);
+        tail->set_next(NULL);
+    }
+
+    int get_length()
+    {
+        return length;
     }
 
     void populate()
@@ -139,7 +151,7 @@ public:
     {
         LinkNode *node = head->get_next();
         string repr = "";
-        while (node != NULL)
+        while (node != tail)
         {
             repr += node->get_data();
             node = node->get_next();
@@ -155,23 +167,40 @@ int random_integer(int lower_cutoff, int upper_cutoff)
     return lower_cutoff + offset;
 }
 
+LinkedList *ll;
+
+void period_print()
+{
+    int millis = 1000;
+    while (ll->get_length() > 0)
+    {
+        this_thread::sleep_for(chrono::milliseconds(millis));
+        string repr = ll->concatenate_data();
+        cout << repr << endl << endl;
+    }
+    cout << "Exiting printing thread" << endl;
+}
+
+void period_delete()
+{
+    int millis = 100;
+    while (ll->get_length() > 0) {
+        this_thread::sleep_for(chrono::milliseconds(millis));
+        ll->remove_at_random();
+    }
+    cout << "Exiting deletion thread" << endl;
+}
+
 int main()
 {
     cout << "4F14 - Doubly Linked List CW - Multi-Threading" << endl
          << endl;
-    LinkedList *ll = new LinkedList();
+    ll = new LinkedList();
     ll->populate();
-    // ll->print();
 
-    for (int i = 0; i < 10; i++)
-    {
-        string data = ll->concatenate_data();
-        cout << data << endl << endl;
-        ll->remove_at_random();
-        ll->remove_at_random();
-        ll->remove_at_random();
-        ll->remove_at_random();
-        ll->remove_at_random();
-    }
+    thread print_thread(period_print);
+    thread delete_thread(period_delete);
 
+    print_thread.join();
+    delete_thread.join();
 }

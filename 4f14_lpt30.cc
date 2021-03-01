@@ -86,13 +86,40 @@ public:
     void insert(string x)
     {
         // Insertion done at front of the list
-        LinkNode *n = new LinkNode(x);
-        n->set_next(head->get_next());
-        if (head->get_next() != NULL)
-            (head->get_next())->set_prev(n);
-        head->set_next(n);
-        n->set_prev(NULL);
+        LinkNode *current = new LinkNode(x);
+        LinkNode *next = head->get_next();
+
+        current->set_next(next);
+        if (next != NULL)
+            next->set_prev(current);
+        
+        head->set_next(current);
+        current->set_prev(head);
+        
         length++;
+    }
+
+    void remove(LinkNode *node)
+    {
+        // assume that node is in the list
+        LinkNode *prev = node->get_prev();
+        LinkNode *next = node->get_next();
+
+        prev->set_next(next);
+        next->set_prev(prev);
+
+        length--; 
+    }
+
+    void remove_at_random()
+    {
+        int index = random_integer(0, length);
+        LinkNode *node = head->get_next();
+        for(int i = 0; i < index; i++)
+        {
+            node = node->get_next();
+        }
+        remove(node);
     }
 
     void print()
@@ -106,6 +133,18 @@ public:
         }
         cout << "TAIL";
         cout << endl;
+    }
+
+    string concatenate_data()
+    {
+        LinkNode *node = head->get_next();
+        string repr = "";
+        while (node != NULL)
+        {
+            repr += node->get_data();
+            node = node->get_next();
+        }
+        return repr;
     }
 
 };
@@ -122,5 +161,17 @@ int main()
          << endl;
     LinkedList *ll = new LinkedList();
     ll->populate();
-    ll->print();
+    // ll->print();
+
+    for (int i = 0; i < 10; i++)
+    {
+        string data = ll->concatenate_data();
+        cout << data << endl << endl;
+        ll->remove_at_random();
+        ll->remove_at_random();
+        ll->remove_at_random();
+        ll->remove_at_random();
+        ll->remove_at_random();
+    }
+
 }

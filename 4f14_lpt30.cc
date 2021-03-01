@@ -2,6 +2,8 @@
 #include <thread>
 using namespace std;
 
+int random_integer(int lower_cutoff, int upper_cutoff);
+
 class LinkNode
 {
 private:
@@ -10,7 +12,8 @@ private:
     LinkNode *next;
 
 public:
-    LinkNode(string x){
+    LinkNode(string x)
+    {
         this->data = x;
     }
 
@@ -55,6 +58,31 @@ public:
         head->set_next(NULL);
     }
 
+    void populate()
+    {
+        const int num_nodes = 140;
+        const int min_length = 3;
+        const int max_length = 10;
+
+        const string alphabet = "abcdefghijklmnopqrstuvwxyz";
+        const int alphabet_length = alphabet.length();
+
+        for (int i = 0; i < num_nodes; i++)
+        {
+            int data_length = random_integer(min_length, max_length);
+            string data = "";
+            
+            for (int j = 0; j < data_length; j++)
+            {
+                int index = random_integer(0, alphabet_length);
+                char character = alphabet[index];
+                data += character;
+            }
+
+            this->insert(data);
+        }
+    }
+
     void insert(string x)
     {
         // Insertion done at front of the list
@@ -67,7 +95,7 @@ public:
         length++;
     }
 
-    void print_nodes()
+    void print()
     {
         LinkNode *node = head->get_next();
         cout << "HEAD <--> ";
@@ -79,14 +107,20 @@ public:
         cout << "TAIL";
         cout << endl;
     }
+
 };
 
+int random_integer(int lower_cutoff, int upper_cutoff)
+{
+    int offset = rand() % (upper_cutoff - lower_cutoff);
+    return lower_cutoff + offset;
+}
 
 int main()
 {
-    cout << "4F14 - Doubly Linked List CW - Multi-Threading" << endl << endl;
+    cout << "4F14 - Doubly Linked List CW - Multi-Threading" << endl
+         << endl;
     LinkedList *ll = new LinkedList();
-    ll->insert("a");
-    ll->insert("b");
-    ll->print_nodes();
+    ll->populate();
+    ll->print();
 }

@@ -1,6 +1,8 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <mutex>
+
 using namespace std;
 
 int random_integer(int lower_cutoff, int upper_cutoff);
@@ -11,16 +13,25 @@ private:
     string data;
     LinkNode *prev;
     LinkNode *next;
+    mutex mutex_var;
 
 public:
     LinkNode(string x)
     {
         this->data = x;
+        this->prev = NULL;
+        this->next = NULL;
     }
 
     string get_data()
     {
         return this->data;
+    }
+
+    unique_lock<mutex> lock()
+    {
+        unique_lock<mutex> lock_obj(mutex_var);
+        return lock_obj;
     }
 
     void set_prev(LinkNode *node)
@@ -100,6 +111,10 @@ public:
         // Insertion done at front of the list
         LinkNode *current = new LinkNode(x);
         LinkNode *next = head->get_next();
+
+        unique_lock<mutex> head_lock = head->lock();
+        unique_lock<mutex> current_lock = current->lock();
+        unique_lock<mutex> next_lock = next->lock();
 
         current->set_next(next);
         if (next != NULL)

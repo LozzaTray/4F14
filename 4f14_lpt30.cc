@@ -5,7 +5,14 @@
 
 using namespace std;
 
+// class declarations
+class LinkNode;
+class LinkedList;
+
+// method declarations
 int random_integer(int lower_cutoff, int upper_cutoff);
+void period_print(LinkedList *ll);
+void period_delete(LinkedList *ll);
 
 class LinkNode
 {
@@ -54,6 +61,7 @@ public:
         return this->next;
     }
 };
+
 
 class LinkedList
 {
@@ -184,15 +192,15 @@ public:
 
 };
 
+
 int random_integer(int lower_cutoff, int upper_cutoff)
 {
     int offset = rand() % (upper_cutoff - lower_cutoff);
     return lower_cutoff + offset;
 }
 
-LinkedList *ll;
 
-void period_print()
+void period_print(LinkedList *ll)
 {
     int print_period = 500;
     while (ll->get_length() > 0)
@@ -202,29 +210,31 @@ void period_print()
         cout << "DLL - " << ll->get_length() << " items:" << endl;
         cout << repr << endl << endl;
     }
-    cout << "Exiting printing thread" << endl;
+    cout << "EXITING PRINTING THREAD" << endl << endl;
 }
 
-void period_delete()
+
+void period_delete(LinkedList *ll)
 {
     int delete_period = 500;
     while (ll->get_length() > 0) {
         this_thread::sleep_for(chrono::milliseconds(delete_period));
         ll->remove_at_random();
     }
-    cout << "Exiting deletion thread" << endl;
+    cout << "EXITING DELETION THREAD" << endl << endl;
 }
+
 
 int main()
 {
     srand(time(NULL));
 
     cout << "4F14 - Doubly Linked List CW - Multi-Threading" << endl << endl;
-    ll = new LinkedList();
+    LinkedList *ll = new LinkedList();
     ll->populate();
 
-    thread print_thread(period_print);
-    thread delete_thread(period_delete);
+    thread print_thread(period_print, ll);
+    thread delete_thread(period_delete, ll);
 
     print_thread.join();
     delete_thread.detach();

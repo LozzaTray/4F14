@@ -28,9 +28,9 @@ public:
         return this->data;
     }
 
-    unique_lock<mutex> lock()
+    unique_lock<mutex> get_lock()
     {
-        unique_lock<mutex> lock_obj(mutex_var);
+        unique_lock<mutex> lock_obj(mutex_var, defer_lock);
         return lock_obj;
     }
 
@@ -112,11 +112,11 @@ public:
         LinkNode *current = new LinkNode(x);
         LinkNode *next = head->get_next();
 
-        unique_lock<mutex> head_lock = head->lock();
-        unique_lock<mutex> current_lock = current->lock();
-        unique_lock<mutex> next_lock = next->lock();
+        unique_lock<mutex> head_lock = head->get_lock();
+        unique_lock<mutex> current_lock = current->get_lock();
+        unique_lock<mutex> next_lock = next->get_lock();
 
-        //lock(head_lock, current_lock, next_lock);
+        lock(head_lock, current_lock, next_lock);
 
         current->set_next(next);
         if (next != NULL)
@@ -134,11 +134,11 @@ public:
         LinkNode *prev = node->get_prev();
         LinkNode *next = node->get_next();
 
-        unique_lock<mutex> prev_lock = prev->lock();
-        unique_lock<mutex> current_lock = node->lock();
-        unique_lock<mutex> next_lock = next->lock();
+        unique_lock<mutex> prev_lock = prev->get_lock();
+        unique_lock<mutex> current_lock = node->get_lock();
+        unique_lock<mutex> next_lock = next->get_lock();
 
-        //lock(prev_lock, current_lock, next_lock);
+        lock(prev_lock, current_lock, next_lock);
 
         prev->set_next(next);
         next->set_prev(prev);
@@ -194,11 +194,12 @@ LinkedList *ll;
 
 void period_print()
 {
-    int millis = 1000;
+    int print_period = 500;
     while (ll->get_length() > 0)
     {
-        this_thread::sleep_for(chrono::milliseconds(millis));
+        this_thread::sleep_for(chrono::milliseconds(print_period));
         string repr = ll->concatenate_data();
+        cout << "DLL - " << ll->get_length() << " items:" << endl;
         cout << repr << endl << endl;
     }
     cout << "Exiting printing thread" << endl;
@@ -206,9 +207,9 @@ void period_print()
 
 void period_delete()
 {
-    int millis = 100;
+    int delete_period = 500;
     while (ll->get_length() > 0) {
-        this_thread::sleep_for(chrono::milliseconds(millis));
+        this_thread::sleep_for(chrono::milliseconds(delete_period));
         ll->remove_at_random();
     }
     cout << "Exiting deletion thread" << endl;
@@ -216,8 +217,9 @@ void period_delete()
 
 int main()
 {
-    cout << "4F14 - Doubly Linked List CW - Multi-Threading" << endl
-         << endl;
+    srand(time(NULL));
+
+    cout << "4F14 - Doubly Linked List CW - Multi-Threading" << endl << endl;
     ll = new LinkedList();
     ll->populate();
 

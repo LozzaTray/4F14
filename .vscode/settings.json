@@ -1,6 +1,11 @@
 {
     "files.associations": {
         "thread": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "condition_variable": "cpp",
+        "*.tcc": "cpp",
+        "fstream": "cpp",
+        "mutex": "cpp",
+        "ostream": "cpp"
     }
 }

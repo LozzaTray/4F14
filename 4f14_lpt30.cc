@@ -70,6 +70,24 @@ private:
     LinkNode *tail;
     int length;
 
+    void remove(LinkNode *node)
+    {
+        // assume that node is in the list
+        LinkNode *prev = node->get_prev();
+        LinkNode *next = node->get_next();
+
+        unique_lock<mutex> prev_lock = prev->get_lock();
+        unique_lock<mutex> current_lock = node->get_lock();
+        unique_lock<mutex> next_lock = next->get_lock();
+
+        lock(prev_lock, current_lock, next_lock);
+
+        prev->set_next(next);
+        next->set_prev(prev);
+
+        length--; 
+    }
+
 public:
     LinkedList()
     {
@@ -136,24 +154,6 @@ public:
         length++;
     }
 
-    void remove(LinkNode *node)
-    {
-        // assume that node is in the list
-        LinkNode *prev = node->get_prev();
-        LinkNode *next = node->get_next();
-
-        unique_lock<mutex> prev_lock = prev->get_lock();
-        unique_lock<mutex> current_lock = node->get_lock();
-        unique_lock<mutex> next_lock = next->get_lock();
-
-        lock(prev_lock, current_lock, next_lock);
-
-        prev->set_next(next);
-        next->set_prev(prev);
-
-        length--; 
-    }
-
     void remove_at_random()
     {
         int index = random_integer(0, length);
@@ -202,12 +202,12 @@ int random_integer(int lower_cutoff, int upper_cutoff)
 
 void period_print(LinkedList *ll)
 {
-    int print_period = 500;
+    //int print_period = 500;
     while (ll->get_length() > 0)
     {
-        this_thread::sleep_for(chrono::milliseconds(print_period));
+        //this_thread::sleep_for(chrono::milliseconds(print_period));
         string repr = ll->concatenate_data();
-        cout << "DLL - " << ll->get_length() << " items:" << endl;
+        //cout << "DLL - " << ll->get_length() << " items:" << endl;
         cout << repr << endl << endl;
     }
     cout << "EXITING PRINTING THREAD" << endl << endl;
@@ -227,6 +227,7 @@ void period_delete(LinkedList *ll)
 
 int main()
 {
+    // fresh seed on each run
     srand(time(NULL));
 
     cout << "4F14 - Doubly Linked List CW - Multi-Threading" << endl << endl;
